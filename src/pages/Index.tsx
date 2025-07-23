@@ -11,14 +11,45 @@ const Index = () => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    // Имитация отправки
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert('Спасибо за поддержку! 💜');
-    }, 2000);
+  const generateYooMoneyUrl = () => {
+    const baseUrl = 'https://yoomoney.ru/quickpay/shop-widget';
+    const params = new URLSearchParams({
+      writer: 'seller',
+      targets: 'Поддержка проекта',
+      'targets-hint': message || '',
+      'default-sum': donationAmount,
+      'button-text': '11',
+      'payment-type-choice': 'on',
+      'mobile-payment-type-choice': 'on',
+      '_origin': 'widget'
+    });
+    return `${baseUrl}?${params.toString()}`;
+  };
+
+  const generateSberUrl = () => {
+    const baseUrl = 'https://www.sberbank.ru/ru/person/dist_services/money_transfer';
+    return baseUrl;
+  };
+
+  const generateTinkoffUrl = () => {
+    const baseUrl = 'https://www.tinkoff.ru/payments/';
+    return baseUrl;
+  };
+
+  const handlePaymentClick = (provider: 'yoomoney' | 'sber' | 'tinkoff') => {
+    let url = '';
+    switch (provider) {
+      case 'yoomoney':
+        url = generateYooMoneyUrl();
+        break;
+      case 'sber':
+        url = generateSberUrl();
+        break;
+      case 'tinkoff':
+        url = generateTinkoffUrl();
+        break;
+    }
+    window.open(url, '_blank');
   };
 
   return (
@@ -51,7 +82,7 @@ const Index = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="amount" className="text-white font-['Open_Sans']">
                     Сумма доната (руб.)
@@ -81,24 +112,43 @@ const Index = () => {
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-donat-green to-donat-teal hover:scale-105 transition-all duration-300 text-white font-bold py-3 font-['Open_Sans'] shadow-lg"
-                >
-                  {isSubmitting ? (
+                {/* Payment Methods */}
+                <div className="space-y-3">
+                  <Label className="text-white font-['Open_Sans']">
+                    Выберите способ оплаты:
+                  </Label>
+                  
+                  <Button
+                    onClick={() => handlePaymentClick('yoomoney')}
+                    className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:scale-105 transition-all duration-300 text-white font-bold py-3 font-['Open_Sans'] shadow-lg"
+                  >
                     <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                      <span>Отправка...</span>
+                      <Icon name="Wallet" size={20} />
+                      <span>ЮMoney</span>
                     </div>
-                  ) : (
+                  </Button>
+
+                  <Button
+                    onClick={() => handlePaymentClick('sber')}
+                    className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:scale-105 transition-all duration-300 text-white font-bold py-3 font-['Open_Sans'] shadow-lg"
+                  >
                     <div className="flex items-center justify-center space-x-2">
-                      <Icon name="Heart" size={20} />
-                      <span>Поддержать проект</span>
+                      <Icon name="CreditCard" size={20} />
+                      <span>Сбербанк Онлайн</span>
                     </div>
-                  )}
-                </Button>
-              </form>
+                  </Button>
+
+                  <Button
+                    onClick={() => handlePaymentClick('tinkoff')}
+                    className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 hover:scale-105 transition-all duration-300 text-white font-bold py-3 font-['Open_Sans'] shadow-lg"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <Icon name="Smartphone" size={20} />
+                      <span>Тинькофф</span>
+                    </div>
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
