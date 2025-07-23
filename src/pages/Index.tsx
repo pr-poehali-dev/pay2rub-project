@@ -14,30 +14,30 @@ const Index = () => {
   const cardNumber = '2200 2460 2108 2220';
   
   const generateSberUrl = () => {
-    const baseUrl = 'https://online.sberbank.ru/CSAFront/index.do#/transfer/card';
-    const params = new URLSearchParams({
-      cardNumber: cardNumber.replace(/\s/g, ''),
-      amount: donationAmount,
-      purpose: message || 'Поддержка проекта'
-    });
-    return `${baseUrl}?${params.toString()}`;
+    // Сбербанк Онлайн - используем универсальную ссылку для быстрых платежей
+    const baseUrl = 'https://online.sberbank.ru/CSAFront/index.do#/transfer/sbp';
+    return baseUrl;
   };
 
   const generateTinkoffUrl = () => {
-    const baseUrl = 'https://www.tinkoff.ru/mybank/payment/card-to-card/';
-    const params = new URLSearchParams({
-      cardNumber: cardNumber.replace(/\s/g, ''),
-      amount: donationAmount,
-      comment: message || 'Поддержка проекта'
-    });
-    return `${baseUrl}?${params.toString()}`;
+    // Тинькофф - прямая ссылка на перевод с карты на карту
+    const baseUrl = `https://www.tinkoff.ru/cf/4Enb6YGHIqG`;
+    return baseUrl;
   };
 
   const generateYooMoneyUrl = () => {
-    // ЮMoney не поддерживает прямой перевод на карту через ссылку
-    // Открываем страницу переводов на карту
-    const baseUrl = 'https://yoomoney.ru/transfer/card';
-    return baseUrl;
+    // ЮMoney - используем quickpay для донатов
+    const baseUrl = 'https://yoomoney.ru/quickpay/confirm.xml';
+    const params = new URLSearchParams({
+      receiver: '4100118331056159', // ЮMoney кошелек
+      quickpay_form: 'donate',
+      targets: message || 'Поддержка проекта',
+      paymentType: 'PC',
+      sum: donationAmount,
+      comment: message || 'Донат',
+      successURL: window.location.href
+    });
+    return `${baseUrl}?${params.toString()}`;
   };
 
   const handlePaymentClick = (provider: 'yoomoney' | 'sber' | 'tinkoff') => {
@@ -116,15 +116,7 @@ const Index = () => {
                   />
                 </div>
 
-                {/* Card Info */}
-                <div className="bg-white/5 p-4 rounded-lg border border-white/20">
-                  <Label className="text-white/80 font-['Open_Sans'] text-sm">
-                    Переводы поступают на карту МИР:
-                  </Label>
-                  <div className="text-white font-bold text-lg font-mono mt-1">
-                    {cardNumber}
-                  </div>
-                </div>
+
 
                 {/* Payment Methods */}
                 <div className="space-y-3">
@@ -138,17 +130,7 @@ const Index = () => {
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <Icon name="CreditCard" size={20} />
-                      <span>Сбербанк Онлайн → Карта МИР</span>
-                    </div>
-                  </Button>
-
-                  <Button
-                    onClick={() => handlePaymentClick('tinkoff')}
-                    className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 hover:scale-105 transition-all duration-300 text-white font-bold py-3 font-['Open_Sans'] shadow-lg"
-                  >
-                    <div className="flex items-center justify-center space-x-2">
-                      <Icon name="Smartphone" size={20} />
-                      <span>Тинькофф → Карта МИР</span>
+                      <span>Сбербанк Онлайн ({donationAmount} ₽)</span>
                     </div>
                   </Button>
 
@@ -158,7 +140,17 @@ const Index = () => {
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <Icon name="Wallet" size={20} />
-                      <span>ЮMoney → Карта МИР</span>
+                      <span>ЮMoney ({donationAmount} ₽)</span>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => handlePaymentClick('tinkoff')}
+                    className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 hover:scale-105 transition-all duration-300 text-white font-bold py-3 font-['Open_Sans'] shadow-lg"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <Icon name="Smartphone" size={20} />
+                      <span>Тинькофф ({donationAmount} ₽)</span>
                     </div>
                   </Button>
                 </div>
