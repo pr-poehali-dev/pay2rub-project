@@ -11,28 +11,32 @@ const Index = () => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const generateYooMoneyUrl = () => {
-    const baseUrl = 'https://yoomoney.ru/quickpay/shop-widget';
+  const cardNumber = '2200 2460 2108 2220';
+  
+  const generateSberUrl = () => {
+    const baseUrl = 'https://online.sberbank.ru/CSAFront/index.do#/transfer/card';
     const params = new URLSearchParams({
-      writer: 'seller',
-      targets: 'Поддержка проекта',
-      'targets-hint': message || '',
-      'default-sum': donationAmount,
-      'button-text': '11',
-      'payment-type-choice': 'on',
-      'mobile-payment-type-choice': 'on',
-      '_origin': 'widget'
+      cardNumber: cardNumber.replace(/\s/g, ''),
+      amount: donationAmount,
+      purpose: message || 'Поддержка проекта'
     });
     return `${baseUrl}?${params.toString()}`;
   };
 
-  const generateSberUrl = () => {
-    const baseUrl = 'https://www.sberbank.ru/ru/person/dist_services/money_transfer';
-    return baseUrl;
+  const generateTinkoffUrl = () => {
+    const baseUrl = 'https://www.tinkoff.ru/mybank/payment/card-to-card/';
+    const params = new URLSearchParams({
+      cardNumber: cardNumber.replace(/\s/g, ''),
+      amount: donationAmount,
+      comment: message || 'Поддержка проекта'
+    });
+    return `${baseUrl}?${params.toString()}`;
   };
 
-  const generateTinkoffUrl = () => {
-    const baseUrl = 'https://www.tinkoff.ru/payments/';
+  const generateYooMoneyUrl = () => {
+    // ЮMoney не поддерживает прямой перевод на карту через ссылку
+    // Открываем страницу переводов на карту
+    const baseUrl = 'https://yoomoney.ru/transfer/card';
     return baseUrl;
   };
 
@@ -112,6 +116,16 @@ const Index = () => {
                   />
                 </div>
 
+                {/* Card Info */}
+                <div className="bg-white/5 p-4 rounded-lg border border-white/20">
+                  <Label className="text-white/80 font-['Open_Sans'] text-sm">
+                    Переводы поступают на карту МИР:
+                  </Label>
+                  <div className="text-white font-bold text-lg font-mono mt-1">
+                    {cardNumber}
+                  </div>
+                </div>
+
                 {/* Payment Methods */}
                 <div className="space-y-3">
                   <Label className="text-white font-['Open_Sans']">
@@ -119,22 +133,12 @@ const Index = () => {
                   </Label>
                   
                   <Button
-                    onClick={() => handlePaymentClick('yoomoney')}
-                    className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:scale-105 transition-all duration-300 text-white font-bold py-3 font-['Open_Sans'] shadow-lg"
-                  >
-                    <div className="flex items-center justify-center space-x-2">
-                      <Icon name="Wallet" size={20} />
-                      <span>ЮMoney</span>
-                    </div>
-                  </Button>
-
-                  <Button
                     onClick={() => handlePaymentClick('sber')}
                     className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:scale-105 transition-all duration-300 text-white font-bold py-3 font-['Open_Sans'] shadow-lg"
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <Icon name="CreditCard" size={20} />
-                      <span>Сбербанк Онлайн</span>
+                      <span>Сбербанк Онлайн → Карта МИР</span>
                     </div>
                   </Button>
 
@@ -144,7 +148,17 @@ const Index = () => {
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <Icon name="Smartphone" size={20} />
-                      <span>Тинькофф</span>
+                      <span>Тинькофф → Карта МИР</span>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => handlePaymentClick('yoomoney')}
+                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:scale-105 transition-all duration-300 text-white font-bold py-3 font-['Open_Sans'] shadow-lg"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <Icon name="Wallet" size={20} />
+                      <span>ЮMoney → Карта МИР</span>
                     </div>
                   </Button>
                 </div>
